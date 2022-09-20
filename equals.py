@@ -1,62 +1,57 @@
 import sympy as sp     
-       
+import numpy as np
+import matplotlib.pyplot as plt
+from enum import IntEnum
+   
+# построение графика поверхности
+def create_plot(f):
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
+    x, y = np.meshgrid(np.linspace(-50, 50, 100), np.linspace(-50, 50, 100))
+    z = f(x, y)
+    ax.plot_surface(x, y, z)
+    plt.show()
+   
+class MyEnum(IntEnum):
+    first = 1
+    second = 2
+    third = 3
+    forth = 4
+    fifth = 5
+   
 class Equals:
-    # region attributes
     ex = None
-    f1 = None
-    f2 = None
-    df_dx = None
-    df_dy = None
-    # endregion
-
-    # region setters
-    @staticmethod
-    def set_equal_1():
-        Equals.ex = '100 * (y - x**2)**2 + (1 - x)**2'
-        Equals.f1 = sp.lambdify(('x', 'y'), Equals.ex)
-        Equals.f2 = sp.lambdify(('y', 'x'), Equals.ex)
-        Equals.df_dx = sp.lambdify(('x', 'y'), sp.diff(Equals.ex, 'x'))
-        Equals.df_dy = sp.lambdify(('x', 'y'), sp.diff(Equals.ex, 'y'))
 
     @staticmethod
-    def set_equal_2():
-        Equals.ex = 'x1**2 + 36*x2**2'
-        Equals.f1 = sp.lambdify(('x1', 'x2'), Equals.ex)
-        Equals.f2 = sp.lambdify(('x1', 'x2'), Equals.ex)
-        Equals.df_dx = sp.lambdify(('x1', 'x2'), sp.diff(Equals.ex, 'x1'))
-        Equals.df_dy = sp.lambdify(('x1', 'x2'), sp.diff(Equals.ex, 'x2'))
+    def set_ex(param):
+        if param is None:   
+            param = MyEnum.first
+            Equals.ex = Equals.switch(param)
+        else:
+            Equals.ex = Equals.switch(param)
 
     @staticmethod
-    def set_equal_3():
-        Equals.ex = '2*x1**2 + x2**2 - x1*x2'
-        Equals.f1 = sp.lambdify(('x1', 'x2'), Equals.ex)
-        Equals.f2 = sp.lambdify(('x1', 'x2'), Equals.ex)
-        Equals.df_dx = sp.lambdify(('x1', 'x2'), sp.diff(Equals.ex, "x1"))
-        Equals.df_dy = sp.lambdify(('x1', 'x2'), sp.diff(Equals.ex, "x2"))
-    # endregion
-
-    # region getters
-    
-
-    @staticmethod
-    def get_ex(): 
-        return Equals.ex
-
-    @staticmethod
-    def get_f1(): return Equals.f1
+    def get_f(param = None):
+        Equals.set_ex(param)
+        
+        print("Текущее уравнение:", Equals.ex)
+        return sp.lambdify(('x1', 'x2'), Equals.ex)
     
     @staticmethod
-    def get_f2(): return Equals.f2
+    def get_ex(): return Equals.ex    
 
     @staticmethod
-    def get_df_dx(): return Equals.df_dx
-
-    @staticmethod
-    def get_df_dy(): return Equals.df_dy
-    #endregion
-    
-    @staticmethod
-    def print_ex(): print(Equals.ex)
+    def switch(param):
+        try:
+            return {
+                MyEnum.first  : '100 * (x2 - x1**2)**2 + (1 - x1)**2',
+                MyEnum.second : 'x1**2 + 36*x2**2',
+                MyEnum.third  : '2*x1**2 + x2**2 - x1*x2',
+                MyEnum.forth  : '(x1 - 3) ** 2 + (5 - x2) ** 2',
+                MyEnum.fifth  : 'x1**3 + 2*x2**2 - 3*x1 - 4*x2'
+            }[param]
+        except KeyError:
+            return None
 
 if __name__ == '__main__':
     pass

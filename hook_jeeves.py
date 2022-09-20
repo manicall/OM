@@ -1,11 +1,7 @@
+from equals import Equals, MyEnum
 
 def hook_jeeves():
-    #Equals.set_equal_1()
-    
-    #ex = Equals.get_ex()
-    #f1 = Equals.get_f1()
-    
-    f1 = lambda x1, x2: (x1 - 3) ** 2 + (5 - x2) ** 2
+    f = Equals.get_f(MyEnum.forth)
     
     x = [[1], [1]]
     h = [1]
@@ -31,9 +27,9 @@ def hook_jeeves():
 
         def search():
             for i in range(len(x)):
-                if f1(*get_x()) > f1(*get_dx(1, i)):
+                if f(*get_x()) > f(*get_dx(1, i)):
                     x[i].append(x[i][-1] + h[-1])
-                elif f1(*get_x()) > f1(*get_dx(-1, i)):
+                elif f(*get_x()) > f(*get_dx(-1, i)):
                     x[i].append(x[i][-1] - h[-1])
                 else:
                     x[i].append(x[i][-1])
@@ -61,7 +57,7 @@ def hook_jeeves():
             
         xp = [xp_v2(i) for i in range(len(x))]
         
-        if f1(*xp) < f1(*get_x()):
+        if f(*xp) < f(*get_x()):
             for i in range(len(x)):
                 x[i].append(xp[i])
         else:
