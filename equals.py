@@ -18,6 +18,7 @@ class MyEnum(IntEnum):
     third = 3
     forth = 4
     fifth = 5
+    fd_first = 6
    
 class Equals:
     ex = None
@@ -44,11 +45,12 @@ class Equals:
     def switch(param):
         try:
             return {
-                MyEnum.first  : '100 * (x2 - x1**2)**2 + (1 - x1)**2',
-                MyEnum.second : 'x1**2 + 36*x2**2',
-                MyEnum.third  : '2*x1**2 + x2**2 - x1*x2',
-                MyEnum.forth  : '(x1 - 3) ** 2 + (5 - x2) ** 2',
-                MyEnum.fifth  : 'x1**3 + 2*x2**2 - 3*x1 - 4*x2'
+                MyEnum.first    : '100 * (x2 - x1**2)**2 + (1 - x1)**2',
+                MyEnum.second   : 'x1**2 + 36*x2**2',
+                MyEnum.third    : '2*x1**2 + x2**2 - x1*x2',
+                MyEnum.forth    : '(x1 - 3) ** 2 + (5 - x2) ** 2',
+                MyEnum.fifth    : 'x1**3 + 2*x2**2 - 3*x1 - 4*x2',
+                MyEnum.fd_first : '3*x1**2+x2**2-x1*x2-4*x1'
             }[param]
         except KeyError:
             return None
