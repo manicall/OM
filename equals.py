@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 from enum import IntEnum
    
 # построение графика поверхности
-def create_plot(f):
+def create_plot(f, sx = 50, sy = 50):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    x, y = np.meshgrid(np.linspace(-50, 50, 100), np.linspace(-50, 50, 100))
+    
+    x, y = np.meshgrid(np.linspace(-sx, sx, 100), np.linspace(-sy, sy, 100))
     z = f(x, y)
     ax.plot_surface(x, y, z)
     plt.show()
@@ -17,7 +18,7 @@ class MyEnum(IntEnum):
     second = 2
     third = 3
     forth = 4
-    fifth = 5
+    gr_first = 5
     fd_first = 6
    
 class Equals:
@@ -39,7 +40,10 @@ class Equals:
         return sp.lambdify(('x1', 'x2'), Equals.ex)
     
     @staticmethod
-    def get_ex(): return Equals.ex    
+    def get_ex(param = None): 
+        if param is not None: 
+            Equals.set_ex(param)
+        return Equals.ex    
 
     @staticmethod
     def switch(param):
@@ -49,11 +53,11 @@ class Equals:
                 MyEnum.second   : 'x1**2 + 36*x2**2',
                 MyEnum.third    : '2*x1**2 + x2**2 - x1*x2',
                 MyEnum.forth    : '(x1 - 3) ** 2 + (5 - x2) ** 2',
-                MyEnum.fifth    : 'x1**3 + 2*x2**2 - 3*x1 - 4*x2',
+                MyEnum.gr_first : 'x1**3 + 2*x2**2 - 3*x1 - 4*x2',
                 MyEnum.fd_first : '3*x1**2+x2**2-x1*x2-4*x1'
             }[param]
         except KeyError:
             return None
 
 if __name__ == '__main__':
-    pass
+    create_plot(lambda x1, x2: (x1 - 3) ** 2 + (5 - x2) ** 2)
