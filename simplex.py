@@ -1,7 +1,8 @@
-from re import A
 import numpy as np
 
 def simplex():
+    F = []
+    
     a = np.array([[18, 15, 12],
                   [6, 4, 8], 
                   [5, 3, 3]])       
@@ -14,9 +15,7 @@ def simplex():
     p0.extend(b.copy())
     p0.append(0) # заполнитель
     p0[-1] = sum(zj(p0, cb))
-    
-    print(p0)
-         
+
     p = getP(a, zj(p0, cb), c)    
 
     # инициализация базиса
@@ -34,13 +33,11 @@ def simplex():
         
         pmax = f'P{not_basiz_id[maxPos] + 1}'
         pmin = get_pmin(bazis, minPos)
-        print(np.round(p, 3))
         
         pCopy = p.copy()
         # деление строки на разрешающий элемент
         for i in not_basiz_id:
             if i == maxPos:
-                # ?
                 p[minPos][i] /= pCopy[minPos][maxPos] ** 2
             else:
                 p[minPos][i] /= pCopy[minPos][maxPos]
@@ -54,10 +51,8 @@ def simplex():
         p0[-1] = sum(zj(p0, cb))
 
         pCopy = p.copy() 
-        print(np.round(p, 3))
         for i in range(a.shape[0]):
             if i == minPos: continue
-            
             for j in not_basiz_id:
                 if j == maxPos: continue
                 p[i][j] -= pCopy[i][maxPos]*pCopy[minPos][j]
@@ -69,22 +64,38 @@ def simplex():
             if i == maxPos: continue     
             s = sum(zj(p[:, i], cb))
             p[-1][i] = s - c[i]     
-        print(sum(zj(p[:, maxPos], cb)))
         
         p[-1][maxPos] = sum(zj(p[:, maxPos], cb))
-        print(np.round(p, 3))  
-        
+
         # обмен в векторе базиса
         swap_bazis(bazis, pmin, pmax)
         # обмен стоблцов в массиве
         swap_p(p, key_to_id(pmin), key_to_id(pmax))
-        # обмен в векторе с
+       
+        def has_up_border(pColumn):
+            for i in pColumn:
+                if i > 0: return True
+            return False
+     
+        for i in range(len(p)):
+            if not has_up_border(p[:, i]):
+                print("Функция не ограничена сверху")
+                return False
+        
+        # если решение содержит множество точек максимума, 
+        # необходимо использовать значение списка F для выхода из цикла
+        F.append(p0[-1])
+        if (F[-1] == F[-2]): 
+            print("Точка максимума лежит на прямой")
+            return False
+        
+        if len(list(filter(lambda x: x < 0, p[-1, :]))) == 0:
+            print("Успешно найдено единственное решение")
+            return False # выход из цикла
     
-        print(c, '\n\n\n\n\n')
-    iter()
-    iter()
-   
-   
+    while iter(): 
+        print(n)
+        if (n := n - 1) == 0: break
     
 def zj(p0, cb):
     return np.array(list(map(lambda a, b: a*b, p0[:-1], cb)))
