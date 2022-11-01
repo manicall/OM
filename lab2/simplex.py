@@ -9,13 +9,8 @@ def simplex(pa, pb, pc):
     c = pc.copy() + [0 for i in range(a.shape[0])]   
     
     cb = np.zeros(a.shape[0])
-    p0 = []
-    # перевод массива b в список
-    p0.extend(b.copy())
-    p0.append(0) # заполнитель
-    p0[-1] = sum(zj(p0, cb))
 
-    p = getP(a, zj(p0, cb), c)    
+    p = getP(a, b, c, cb)    
 
     # инициализация базиса
     bazis = get_bazis(a, p)
@@ -23,54 +18,30 @@ def simplex(pa, pb, pc):
     def iter():
         nonlocal bazis
         # получение позиции максимального по модулю
-        #! в последней строке, среди p неявляющихся базисом
-        not_basiz_id, not_basiz_p = get_not_basiz(bazis, p)
-        maxPos = np.argmax(getAbs(not_basiz_p))
+        k, _ = getMaxPos(p[-1])
         
         # получение минимального
-        divs = getDiv(p0, p, maxPos)
-        min_el, minPos = min(divs), np.argmin(divs)
+        divs = getDivs(p, k)
+        r = np.argmin(divs)
         
-        pmax = f'P{not_basiz_id[maxPos] + 1}'
-        pmin = get_pmin(bazis, minPos)
+        pCopy = np.array(p)
         
-        pCopy = p.copy()
-        # деление строки на разрешающий элемент
-        for i in not_basiz_id:
-            if i == maxPos:
-                p[minPos][i] /= pCopy[minPos][maxPos] ** 2
-            else:
-                p[minPos][i] /= pCopy[minPos][maxPos]
-
-        # перерасчет p0
-        cb[minPos] = c[maxPos]
-        p0[minPos] = min_el
-        for i in range(len(p0)):
-            if i == minPos: continue
-            p0[i] -= p0[minPos]*p[i][key_to_id(pmax)] 
-        p0[-1] = sum(zj(p0, cb))
-
-        pCopy = p.copy() 
-        for i in range(a.shape[0]):
-            if i == minPos: continue
-            for j in not_basiz_id:
-                if j == maxPos: continue
-                p[i][j] -= pCopy[i][maxPos]*pCopy[minPos][j]
-                
-            p[i][maxPos] = pCopy[i][key_to_id(pmin)] \
-                - p[i][maxPos]*pCopy[minPos][maxPos]
-           
-        for i in not_basiz_id:
-            if i == maxPos: continue     
-            s = sum(zj(p[:, i], cb))
-            p[-1][i] = s - c[i]     
+        # r - разрешающая строка
+        # k - разрешающий стобец
+        for i in range(len(p)):
+            for j in range(len(p[i])):
+                if (i == r):
+                    p[i][j] /= pCopy[r][k]
+                else:
+                    p[i][j] -= (pCopy[r][j]/pCopy[r][k])*pCopy[i][k]
         
-        p[-1][maxPos] = sum(zj(p[:, maxPos], cb))
-
+        cb[r] = c[k-1]
+        
+        pmax = f'P{k}'
+        pmin = get_pmin(bazis, r)
         # обмен в векторе базиса
         bazis = swap_bazis(bazis, pmin, pmax)
         # обмен стоблцов в массиве
-        swap_p(p, key_to_id(pmin), key_to_id(pmax))
        
         def has_up_border(pColumn):
             for i in pColumn:
@@ -84,7 +55,7 @@ def simplex(pa, pb, pc):
         
         # если решение содержит множество точек максимума, 
         # необходимо использовать значение списка F для выхода из цикла
-        F.append(p0[-1])
+        F.append(p[0][-1])
         if (len(F) > 1):
             if (F[-1] == F[-2]):
                 print("Точка максимума лежит на прямой")
@@ -107,13 +78,11 @@ def simplex(pa, pb, pc):
             res[-1].append(i+1)
             res[-1].append(b[i])
             res[-1].append(cb[i])
-            res[-1].append(p0[i])
             res[-1].extend(p[i])
             
         res.append([])
         res[-1].append(len(res))
         res[-1].extend((None, None))
-        res[-1].append(p0[-1])
         res[-1].extend(p[-1])
 
         return res
@@ -127,8 +96,8 @@ def simplex(pa, pb, pc):
     
     return full_res
 
-def zj(p0, cb):
-    return np.array(list(map(lambda a, b: a*b, p0[:-1], cb)))
+def zj(pCol, cb):
+    return sum(map(lambda a, b: a*b, pCol, cb))
 
 def get_bazis(a, p):
     j = 0
@@ -144,10 +113,10 @@ def get_bazis(a, p):
 def key_to_id(pkey):
     return int(pkey[1:]) - 1
 
-def getP(a, zj, c):
+def getP(a, b, c, cb): 
     p = []
     for i in range(a.shape[0]):
-        p.append([])
+        p.append([b[i]])
         # значения из массива a
         for j in range(a.shape[1]):
             p[-1].append(a[i][j])
@@ -155,43 +124,31 @@ def getP(a, zj, c):
         for k in range(a.shape[0]):
             p[-1].append(1 if k == i else 0)
     
-    p.append([])
-    for zj_el, c_el in zip(zj, c):
-        p[-1].append(zj_el - c_el)
-    for k in range(a.shape[0]):
-        p[-1].append(0)
-    
+    copyP = np.array(p)
+    p.append([zj(copyP[:, 0], cb)])
+    for i in range(1, len(p[0])):
+        p[-1].append(zj(copyP[:, i], cb) - c[i - 1])
+
     return np.array(p)
 
-def getAbs(pSlice):
-    copy = list(map(lambda x: 0 if x > 0 else x, pSlice))
-    return list(map(abs, copy))
+def getMaxPos(pSlice):
+    maxPos = None
+    max = None
+    for i, el in enumerate(pSlice):
+        if el < 0: # среди отрицательных
+            if max is None:
+                maxPos, max = i, abs(el) 
+            elif abs(el) > max: # максмаальное по модулю
+                maxPos, max = i, abs(el) 
+    return maxPos, max
 
-def getDiv(p0, p, maxPos):
-    return list(map(lambda a, b: a/b, p0, p[:-1, maxPos])) 
+def getDivs(p, maxPos):
+    return list(map(lambda a, b: a/b, p[:-1, 0], p[:-1, maxPos])) 
 
 def swap_bazis(bazis, pmin, pmax):
     bazis[pmin], bazis[pmax] = bazis[pmax], bazis[pmin]
     return dict(sorted(bazis.items(), key=lambda x: x[1]))
-
-def swap_p(p, minPos, maxPos):
-    p[:,minPos], p[:,maxPos] = p[:,maxPos].copy(), p[:,minPos].copy()
-
-def get_not_basiz(bazis, p): 
-    # индексы Pi неявляющихся базисом
-    not_bazis_id = []
-    for key, value in bazis.items():
-        if value == 0: 
-            # key[1:] - удаление первого символа 
-            # из строки ('P15'[1:] => '15')
-            not_bazis_id.append(int(key[1:]) - 1)
-            
-    # получение и возврат строки (zj - c) в Pi неявляющихся базисом
-    not_bazis_p = np.array([p[:, i] for i in not_bazis_id])
-    not_bazis_p = np.ndarray.flatten(not_bazis_p[:, [-1]])
-    
-    return (not_bazis_id, not_bazis_p)
-    
+  
 def get_pmin(bazis, minPos):
     for key, value in bazis.items():
         if minPos + 1 == value: return key 

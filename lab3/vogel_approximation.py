@@ -116,5 +116,5 @@ if __name__ == '__main__':
         [[5,3,1],
         [3,2,4],
         [4,1,2]], np.float64)
-
+    
     vogel_approximation(a, b, c)
