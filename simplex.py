@@ -5,7 +5,7 @@ def simplex():
     
     a = np.array([[18, 15, 12],
                   [6, 4, 8], 
-                  [5, 3, 3]])       
+                  [5, 3, 3]])
     
     c = [9, 10, 16] + [0 for i in range(a.shape[0])]   
     b = np.array([360, 192, 180])

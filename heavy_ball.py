@@ -1,12 +1,11 @@
 import sympy as sp
-import numpy as np
 from equals import Equals, MyEnum
 
 def heavy_ball():
-    x = [[0], [0]]
+    x = [[-1000], [1000]]
     h = 0.4
     a = 0.3
-    f = Equals.get_f(MyEnum.forth)
+    f = Equals.get_f(MyEnum.cr_ex)
 
     dx = []
     for i in range(len(x)):
@@ -35,7 +34,7 @@ def heavy_ball():
             x[i].append(temp_x[i])
         
     x0()
-    for i in range(4): 
+    for i in range(40): 
         xi()
 
     print(f"x{tuple([xi[-1] for xi in x])}", sep='\n')
