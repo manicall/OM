@@ -5,7 +5,7 @@ from equals import Equals, MyEnum
 def conjugate_gradients():
     x = [[-0.5], [-1]]
     h = 0.1
-    f = Equals.get_f(MyEnum.gr_first)
+    f = Equals.get_f(MyEnum.gr_ex)
 
     dx = []
     for i in range(len(x)):
@@ -18,6 +18,7 @@ def conjugate_gradients():
         #print(grad_list)
         return np.sqrt(sum(grad_list))
 
+    print("i   x1   x2   dR/dx1   dR/dx2   R")
     # поиск минимума на начальном этапе (методом наискорейшего спуска)
     def x0():    
         temp_x = []
@@ -31,20 +32,22 @@ def conjugate_gradients():
 
     # поиск минимума методом сопряженных градиентов
     def xi():
-        a = mgrad([xi[-1] for xi in x]) ** 2 / mgrad([xi[-2] for xi in x]) ** 2
+        #a = mgrad([xi[-1] for xi in x]) ** 2 / mgrad([xi[-2] for xi in x]) ** 2
         temp_x = []
         for i in range(len(x)):
             # *dx = grad 
             temp_x.append(x[i][-1] - h * (dx[i](x[0][-1], x[1][-1]) + a*dx[i](x[0][-2], x[1][-2])))
-        
-        print(temp_x)
+
         
         for i in range(len(x)):
             x[i].append(temp_x[i])
         
     x0()
-    for i in range(100): 
-        xi()
+    # while round(f(x[0][-1], x[1][-1]), 3) != 0: 
+    #     xi()
+        
+    for i in range(len(x[0])):
+       print(f"""{i}) | {round(x[0][i], 3)} | {round(x[1][i], 3)} | {round(dx[0](x[0][i], x[1][i]), 3)} | {round(dx[1](x[0][i], x[1][i]), 3)}| {mgrad([xi[i] for xi in x])} | {round(f(x[0][i], x[1][i]), 3)}""")
 
     print(f"x{tuple([xi[-1] for xi in x])}", sep='\n')
     
