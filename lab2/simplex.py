@@ -1,12 +1,29 @@
 import numpy as np
 from scipy.optimize import linprog
-
-def simplex(pa, pb, pc):
+from signs import Signs
+def simplex(pa, pb, pc, signs, task = "max"):
+    if (all(i == Signs.equal for i in signs)):
+        print("данную задачу невозможно решить симплексным методом")
+        return
+    
+    for i, el in enumerate(signs):
+        if el == Signs.more:
+            pb[i] = -pb[i]
+            for j in range(pa.shape[1]):
+                pa[i][j] = -pa[i][j]
+                    
+    if (any(i < 0 for i in pb)):
+        print("данную задачу невозможно решить симплексным методом")
+        return 
+    
+    if task == 'min':
+        pc = list(map(lambda x: -x, pc))
+    
     F = []
     
     a = pa.copy()
     b = pb.copy()
-    c = pc.copy() + [0 for i in range(a.shape[0])]   
+    c = pc.copy() + [0] * a.shape[0]   
     
     cb = np.zeros(a.shape[0])
 
