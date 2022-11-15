@@ -4,18 +4,16 @@ from scipy.optimize import linprog
 def simplex(pa, pb, pc):
     F = []
     
-    a = pa.copy()
-    b = pb.copy()
-    c = pc.copy() + [0 for i in range(a.shape[0])]   
+    a = pa.copy()     
     
     cb = np.zeros(a.shape[0])
     p0 = []
     # перевод массива b в список
-    p0.extend(b.copy())
+    p0.extend(pb.copy())
     p0.append(0) # заполнитель
     p0[-1] = sum(zj(p0, cb))
 
-    p = getP(a, zj(p0, cb), c)    
+    p = getP(a, zj(p0, cb), pc)    
 
     # инициализация базиса
     bazis = get_bazis(a, p)
