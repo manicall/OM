@@ -75,22 +75,25 @@ class InputTableWidget(QtWidgets.QTableWidget):
             self.setCellWidget(i, self.columnCount() - 2, comboBox)
             
     def get_A_ub(self):
+        self.update()
         A_ub = []
-        for i in range(len(self.A_ub)):
+        for i in range(self.rowCount() - 1):
             A_ub.append([])
-            for j in range(len(self.A_ub[i])):
+            for j in range(self.columnCount() - 2):
                 A_ub[-1].append(float(self.item(i, j).text()))
         return np.array(A_ub)
 
     def get_b_ub(self):
+        self.update()
         b_ub = []
-        for i in range(len(self.b_ub)):
+        for i in range(self.rowCount() - 1):
             b_ub.append(float(self.item(i, self.columnCount() - 1).text()))
         return np.array(b_ub)
 
     def get_c(self):
+        self.update()
         c = []
-        for i in range(len(self.c)):
+        for i in range(self.columnCount() - 2):
             c.append(float(self.item(self.rowCount() - 1, i).text()))
         return c
     
@@ -104,11 +107,11 @@ class InputTableWidget(QtWidgets.QTableWidget):
     pass  
 
 class OutputTableWidget(QtWidgets.QTableWidget):
-    def initHeaders(self, tInput):        
-        p = [str(el) + f"\nP{i+1}" for i, el in enumerate(tInput.c)]
+    def initHeaders(self, iTable):        
+        p = [str(el) + f"\nP{i+1}" for i, el in enumerate(iTable.c)]
         
-        self.maxLen = tInput.A_ub.shape[0] + len(tInput.c)
-        pb = [str(0) + f"\nP{i+1}" for i in range(len(tInput.c), self.maxLen)]
+        self.maxLen = iTable.A_ub.shape[0] + len(iTable.c)
+        pb = [str(0) + f"\nP{i+1}" for i in range(len(iTable.c), self.maxLen)]
         
         constColHeaders = ["i", "Базис", "Сб", "P0"]
         
@@ -116,11 +119,10 @@ class OutputTableWidget(QtWidgets.QTableWidget):
         self.setHorizontalHeaderLabels(constColHeaders + p + pb)
         self.setRowCount(0)
     
-    def fill(self, full_res, tInput):
+    def fill(self, full_res, iTable):
         if full_res is None: return
         
-        self.clear()
-        self.initHeaders(tInput)
+        self.initHeaders(iTable)
         
         self.insertRow(0)
         

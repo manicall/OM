@@ -86,11 +86,11 @@ def simplex(pa, pb, pc, signs, task = "max"):
         
         return True
     
-    n = 10
+    n = 1000
       
     def get_res():
         b = [key for key, v in filter(lambda x: x[1] > 0,  bazis.items())]
-        return Result(b, cb, p)
+        return Result(b.copy(), cb.copy(), p.copy())
     
     full_res = [get_res()]
     while iter(): 

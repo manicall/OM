@@ -1,8 +1,7 @@
 import sys
-import numpy as np
-import sympy as sp
-from PyQt5 import QtWidgets, QtGui, QtCore
-from table_widgets import InputTableWidget, OutputTableWidget
+
+from PyQt5 import QtWidgets
+from central_widget import CentralWidget
 from scipy_solver import ScipySolver
 from simplex import simplex
         
@@ -11,22 +10,6 @@ class App(QtWidgets.QApplication):
         super().__init__(sys.argv)
         self.window = MainWindow()
         self.window.show()
-
-class CentralWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__()
-        
-          
-        self.tableInput = InputTableWidget()
-        
-        self.tableOutput = OutputTableWidget(self.tableInput)    
-        
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.addWidget(self.tableInput)
-        main_layout.addWidget(self.tableOutput)
-        
-        self.setLayout(main_layout)
-
 
 class MainWindow(QtWidgets.QMainWindow):    
     def __init__(self):
