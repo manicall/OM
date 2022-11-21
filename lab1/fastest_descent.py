@@ -1,5 +1,4 @@
-from tkinter import X
-from equals import Equals, MyEnum
+from equals import Equals
 import sympy as sp
 import math as m
 
