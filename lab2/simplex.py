@@ -3,16 +3,17 @@ from scipy.optimize import linprog
 from signs import Signs
 from result import Result 
 
-def simplex(pa, pb, pc, signs, task = "max"):
-    if (all(i == Signs.equal for i in signs)):
-        print("данную задачу невозможно решить симплексным методом")
-        return
+def simplex(pa, pb, pc, signs = None, task = "max"):
+    if signs is not None:
+        if (all(i == Signs.equal for i in signs)):
+            print("данную задачу невозможно решить симплексным методом")
+            return
     
-    for i, el in enumerate(signs):
-        if el == Signs.more:
-            pb[i] = -pb[i]
-            for j in range(pa.shape[1]):
-                pa[i][j] = -pa[i][j]             
+        for i, el in enumerate(signs):
+            if el == Signs.more:
+                pb[i] = -pb[i]
+                for j in range(pa.shape[1]):
+                    pa[i][j] = -pa[i][j]             
       
     if (any(i < 0 for i in pb)):
         print("данную задачу невозможно решить симплексным методом")
@@ -81,7 +82,7 @@ def simplex(pa, pb, pc, signs, task = "max"):
                 return False
         
         if len(list(filter(lambda x: x < 0, p[-1, :]))) == 0:
-            print("Успешно найдено единственное решение")
+            #print("Успешно найдено единственное решение")
             return False # выход из цикла
         
         return True
