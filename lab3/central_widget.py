@@ -7,7 +7,7 @@ class CentralWidget(QtWidgets.QWidget):
                 
         self.tableInput = InputTableWidget()
         
-        self.tableOutput = OutputTableWidget(self.tableInput)    
+        self.tableOutput = OutputTableWidget()    
         
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.addWidget(self.tableInput)

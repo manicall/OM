@@ -19,7 +19,7 @@ def frankwolf(X = Point(0, 0)):
     f = sp.lambdify(("x1", "x2"), ex)
     
     g = [
-        "x1 + 2*x2 <= 8",
+        "x1 + 2*x2 <= 8\n",
         "2*x1 - x2 <= 12"
     ]
     
