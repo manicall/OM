@@ -49,3 +49,7 @@ class InputUI():
 
         layout.addLayout(hLayout)
         
+    def getUIContains(self):
+        return self.expressionLine.text(), self.boundsText.toPlainText(), \
+            [pointEdit.text() for pointEdit in self.startPoint], self.accuracy.text()
+        

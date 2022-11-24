@@ -24,15 +24,16 @@ class MainWindow(QtWidgets.QMainWindow):
         
     def initMenu(self):
         menu_bar = self.menuBar()
-        menu_bar.addAction("Метод аппроксимации Фогеля", self.solve_my)
+        menu_bar.addAction("Метод Франка-Вульфа", self.solve_my)
         
     def solve_my(self):
-        table = self.widget.tableInput
-        a, b, c = table.get_A_ub(), table.get_b_ub(), table.get_c(), 
+        inputUI = self.widget.inputUI
+        ex, g, X, E = inputUI.getUIContains()
         
-        #self.widget.tableOutput.fill(vogel_approximation(a, b, c), table)
+        self.widget.tableOutput.fill(frankwolf(ex, g, X, E))
     
 if __name__ == "__main__":
     app = App()
     app.setStyle("fusion")
     sys.exit(app.exec())
+    

@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import linprog
 from signs import Signs
-from result import Result 
+from simplex_result import Result 
 
 def simplex(pa, pb, pc, signs = None, task = "max"):
     if signs is not None:
