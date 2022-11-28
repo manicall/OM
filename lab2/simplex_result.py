@@ -18,8 +18,7 @@ class Result:
     
     def getColLen(self):
         return len(self.getRow(0))
-    
-    
+        
     def getResult(self):                    
         F = float(self.p[-1][0])
         
@@ -28,4 +27,10 @@ class Result:
         for i in range(len(self.b)):
             X[int(self.b[i][1:]) - 1] = float(self.p[i][0])
             
-        return (F, X)
+        return FX(F, X)
+
+class FX:
+    def __init__(self, F, X):
+        self.F = F
+        self.X = X
+        

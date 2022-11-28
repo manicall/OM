@@ -21,16 +21,14 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
     
     if task == 'min':
         pc = list(map(lambda x: -x, pc))
-    
-    F = []
-    
+
     a = pa.copy()
     b = pb.copy()
     c = pc.copy() + [0] * a.shape[0]   
     
     cb = np.zeros(a.shape[0])
 
-    p = getP(a, b, c, cb)    
+    p = init_p(a, b, c, cb)    
 
     # инициализация базиса
     bazis = init_bazis(a, p)
@@ -61,7 +59,6 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
         pmin = get_pmin(bazis, r)
         # обмен в векторе базиса
         bazis = swap_bazis(bazis, pmin, pmax)
-        # обмен стоблцов в массиве
        
         def has_up_border(pColumn):
             for i in pColumn:
@@ -75,13 +72,12 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
         
         # если решение содержит множество точек максимума, 
         # необходимо использовать значение списка F для выхода из цикла
-        F.append(p[0][-1])
-        if (len(F) > 1):
-            if (F[-1] == F[-2]):
+        if (len(full_res) > 1):
+            if (full_res[-1].getResult().F == full_res[-2].getResult().F):
                 print("Точка максимума лежит на прямой")
                 return False
         
-        if len(list(filter(lambda x: x < 0, p[-1, :]))) == 0:
+        if not list(filter(lambda x: x < 0, p[-1, :])):
             #print("Успешно найдено единственное решение")
             return False # выход из цикла
         
@@ -119,7 +115,7 @@ def init_bazis(a, p):
 def key_to_id(pkey):
     return int(pkey[1:]) - 1
 
-def getP(a, b, c, cb): 
+def init_p(a, b, c, cb): 
     p = []
     for i in range(a.shape[0]):
         p.append([b[i]])

@@ -135,13 +135,13 @@ class OutputTableWidget(QtWidgets.QTableWidget):
                         j + i*(1 + full_res[i].getRowLen()), k,
                         QtWidgets.QTableWidgetItem(self.getVal(full_res[i].getRow(j)[k])))
         
-        f, x = full_res[-1].getResult()
+        root = full_res[-1].getResult()
         self.setItem(self.rowCount() - 1, 0, QtWidgets.QTableWidgetItem("F=")) 
-        self.setItem(self.rowCount() - 1, 1, QtWidgets.QTableWidgetItem(self.getVal(f)))
+        self.setItem(self.rowCount() - 1, 1, QtWidgets.QTableWidgetItem(self.getVal(root.F)))
 
         self.setItem(self.rowCount() - 1, 3, QtWidgets.QTableWidgetItem("X=")) 
-        for j in range(4, len(x) + 4):
-            self.setItem(self.rowCount() - 1, j, QtWidgets.QTableWidgetItem(self.getVal(x[j-4])))
+        for j in range(4, len(root.X) + 4):
+            self.setItem(self.rowCount() - 1, j, QtWidgets.QTableWidgetItem(self.getVal(root.X[j-4])))
                   
         self.resizeColumnsToContents()
         self.resizeRowsToContents()      

@@ -34,6 +34,8 @@ class MainWindow(QtWidgets.QMainWindow):
         table_menu.addAction("Добавить строку", self.widget.tableInput.addRow)
         table_menu.addAction("Удалить строку", self.widget.tableInput.delRow)
         
+        menu_bar.addAction("Таблица из файла", self.widget.tableInput.fromTextFile)
+        
     def solve_my(self):
         table = self.widget.tableInput
         a, b, c = table.get_A_ub(), table.get_b_ub(), table.get_c(), 

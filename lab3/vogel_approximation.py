@@ -1,9 +1,13 @@
 import numpy as np
+from vogel_result import Result
 
 def vogel_approximation(pa, pb, pc):
     a = pa
     b = pb
     c = pc
+    
+    allowed_rows = [*range(a.shape[0])]
+    allowed_cols = [*range(a.shape[1])]
     
     if sum(b) == sum(c): 
         print("Задача является закрытой")
@@ -14,20 +18,20 @@ def vogel_approximation(pa, pb, pc):
     sended = np.zeros(a.shape)
     
     def iter():
-        res.append([])
         nonlocal a
-        di = [el2 - el1 for el1, el2 in mins_row(a)]
-        dj = [el2 - el1 for el1, el2 in mins_col(a)]
+        di = [el2-el1 for el1, el2 in mins_row(a, allowed_rows, allowed_cols)]
+        dj = [el2-el1 for el1, el2 in mins_col(a, allowed_rows, allowed_cols)]
         
         max_di = (max(di), np.argmax(di))
         max_dj = (max(dj), np.argmax(dj))
         
-        diff = ()
-        
+        colored = ()
+        diff = 0
+    
         def IndexOfPositive(_list):
             for i, el in enumerate(_list):
                 if el > 0: return i
-        
+            
         if (max_di[0] < 0 and max_dj[0] < 0):
             # индекс строки максимума
             i = IndexOfPositive(b)
@@ -35,44 +39,47 @@ def vogel_approximation(pa, pb, pc):
             j = IndexOfPositive(c)
             
             # выполнение отправки ресурсов
-            send(sended, c, b, i, j)
-            # удаление строки максимума
-            a[i, :] = np.inf  
+            diff = send(sended, c, b, i, j)
             
-            diff = ('', (i, j))        
+            colored = ('', (i, j))        
         else:
             if max_di[0] >= max_dj[0]:
                 # индекс строки максимума
                 i = max_di[1]
                 # индекс минимума в максимальной строке
-                j = np.argmin(a, 1)[i]
+                j = None
+                for col in allowed_cols:
+                    if j is None or a[i][j] > a[i][col]: 
+                        j = col
+                    
+                if j is None:
+                    # удаление строки максимума
+                    allowed_rows.remove(i)
+                    return
                 
                 # выполнение отправки ресурсов
-                send(sended, c, b, i, j)
-                # удаление строки максимума
-                a[i, :] = np.inf
-                
-                diff = ('di', (i, j))   
-            elif max_di[0] < max_dj[0]:
+                diff = send(sended, c, b, i, j)
+                allowed_rows.remove(i)
+                colored = ('di', (i, j))           
+            else:
                 # индекс столбца максимума
                 j = max_dj[1]
                 # индекс минимума в максимальном столбце
-                i = np.argmin(a, 0)[j]
-
-                # выполнение отправки ресурсов
-                send(sended, c, b, i, j)
-                # удаление столбца максимума
-                a[:, j] = np.inf
+                i = None
+                for row in allowed_rows:
+                    if i is None or a[i][j] > a[row][j]: i = row
+                    
+                if i is  None: 
+                    # удаление столбца максимума
+                    allowed_cols.remove(j)
+                    return
                 
-                diff = ('dj', (i, j))
-            
-            
-        res[-1].append(b.copy())
-        res[-1].append(di.copy())
-        res[-1].append(c.copy())
-        res[-1].append(dj.copy())
-        res[-1].append(sended.copy())
-        res[-1].append(diff)
+                diff = send(sended, c, b, i, j)
+                allowed_cols.remove(j)
+                colored = ('dj', (i, j))
+                
+
+        res.append(Result(b.copy(), di.copy(), c.copy(), dj.copy(), sended.copy(), diff, colored))
 
     res = []
     n = 1000
@@ -88,47 +95,53 @@ def send(sended, c, b, i, j):
     c[j] -= _min
     b[i] -= _min
     
-def mins_row(a):
+    return _min
+    
+def mins(a, allowed_rows, allowed_cols, axis):
+    def getA(i, j):
+        if axis == 0: return a[i][j]
+        elif axis == 1: return a[j][i] 
+    
+    def getSize():
+        if axis == 0: return a.shape[0], a.shape[1]
+        elif axis == 1: return a.shape[1], a.shape[0]
+        
+    def check_stop():
+        if axis == 0 and all(k != i for k in allowed_rows): return True
+        elif axis == 1 and all(k != i for k in allowed_cols): return True
+        return False
+    
+    def get_allowed():
+        if axis == 0: return allowed_cols
+        elif axis == 1: return allowed_rows
+    
     result = []
-    for i in range(a.shape[0]):
-        min1, min2 = np.inf, np.inf
-        if all(k == np.inf for k in a[i]):
+    for i in range(getSize()[0]):
+        if check_stop():
             result.append((-1, -2))
             continue
         
-        for j in range(a.shape[1]):
-            if a[i][j] < min2:
-                if a[i][j] < min1: 
-                    min2, min1 = min1, a[i][j]
-                else:
-                    min2 = a[i][j]
-        
-        if any(i < 0 or i == np.inf for i in (min1, min2)): return (-1, -2)
-        result.append((min1, min2))
+        if len(get_allowed()) > 1:
+            min1, min2 = getA(i, get_allowed()[0]), getA(i, get_allowed()[1])
+            if min1 > min2: min1, min2 = min2, min1
+            for j in get_allowed()[2:]:
+                if getA(i, j) < min2:
+                    if getA(i, j) < min1: 
+                        min2, min1 = min1, getA(i, j)
+                    else:
+                        min2 = getA(i, j)
+
+            result.append((min1, min2))
+        else:
+            result.append((-1, -2))
                 
     return result
 
-def mins_col(a):
-    result = []
-    for i in range(a.shape[1]):
-        min1, min2 = np.inf, np.inf
-        if all(k == np.inf for k in a[:, i]):  
-            result.append((-1, -2))
-            continue
-        
-        for j in range(a.shape[0]):
-            if a[j][i] < min2:
-                if a[j][i] < min1: 
-                    min2, min1 = min1, a[j][i]
-                else:
-                    min2 = a[j][i]
-                    
-        if any(i < 0 or i == np.inf for i in (min1, min2)): 
-            result.append((-1, -2))
-        else:
-            result.append((min1, min2))
-                
-    return result
+def mins_row(a, allowed_rows, allowed_cols):
+    return mins(a, allowed_rows, allowed_cols, 0)
+
+def mins_col(a, allowed_rows, allowed_cols):
+    return mins(a, allowed_rows, allowed_cols, 1)
     
 if __name__ == '__main__':
     c = np.array([10, 20, 30])
