@@ -162,6 +162,7 @@ def getMaxPos(pSlice):
 def getDivs(p, maxPos):
     return list(map(lambda a, b: a/b, p[:-1, 0], p[:-1, maxPos])) 
 
+# ломается потому что p0 начал входить в общую p
 def swap_bazis(bazis, pmin, pmax):
     bazis[pmin], bazis[pmax] = bazis[pmax], bazis[pmin]
     return dict(sorted(bazis.items(), key=lambda x: x[1]))
