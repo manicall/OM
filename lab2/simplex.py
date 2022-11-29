@@ -1,43 +1,44 @@
 import numpy as np
 from scipy.optimize import linprog
 from signs import Signs
-def simplex(pa, pb, pc, signs, task = "max"):
-    if (all(i == Signs.equal for i in signs)):
-        print("данную задачу невозможно решить симплексным методом")
-        return
+from simplex_result import Result 
+
+def simplex(pa, pb, pc, signs = None, task = "max"):
+    if signs is not None:
+        if (all(i == Signs.equal for i in signs)):
+            print("данную задачу невозможно решить симплексным методом")
+            return
     
-    for i, el in enumerate(signs):
-        if el == Signs.more:
-            pb[i] = -pb[i]
-            for j in range(pa.shape[1]):
-                pa[i][j] = -pa[i][j]
-                    
+        for i, el in enumerate(signs):
+            if el == Signs.more:
+                pb[i] = -pb[i]
+                for j in range(pa.shape[1]):
+                    pa[i][j] = -pa[i][j]             
+      
     if (any(i < 0 for i in pb)):
         print("данную задачу невозможно решить симплексным методом")
         return 
     
     if task == 'min':
         pc = list(map(lambda x: -x, pc))
-    
-    F = []
-    
+
     a = pa.copy()
     b = pb.copy()
     c = pc.copy() + [0] * a.shape[0]   
     
     cb = np.zeros(a.shape[0])
 
-    p = getP(a, b, c, cb)    
+    p = init_p(a, b, c, cb)    
 
     # инициализация базиса
-    bazis = get_bazis(a, p)
+    bazis = init_bazis(a, p)
 
     def iter():
         nonlocal bazis
-        # получение позиции максимального по модулю
+        # получение позиции максимального по модулю (выбор только среди отризательных)
         k, _ = getMaxPos(p[-1])
         
-        # получение минимального
+        # получение минимального (выбор только среди положитительных)
         divs = getDivs(p, k)
         r = np.argmin(divs)
         
@@ -58,7 +59,6 @@ def simplex(pa, pb, pc, signs, task = "max"):
         pmin = get_pmin(bazis, r)
         # обмен в векторе базиса
         bazis = swap_bazis(bazis, pmin, pmax)
-        # обмен стоблцов в массиве
        
         def has_up_border(pColumn):
             for i in pColumn:
@@ -72,37 +72,22 @@ def simplex(pa, pb, pc, signs, task = "max"):
         
         # если решение содержит множество точек максимума, 
         # необходимо использовать значение списка F для выхода из цикла
-        F.append(p[0][-1])
-        if (len(F) > 1):
-            if (F[-1] == F[-2]):
+        if (len(full_res) > 1):
+            if (full_res[-1].getResult().F == full_res[-2].getResult().F):
                 print("Точка максимума лежит на прямой")
                 return False
         
-        if len(list(filter(lambda x: x < 0, p[-1, :]))) == 0:
-            print("Успешно найдено единственное решение")
+        if not list(filter(lambda x: x < 0, p[-1, :])):
+            #print("Успешно найдено единственное решение")
             return False # выход из цикла
         
         return True
     
-    n = 10
+    n = 1000
       
     def get_res():
-        res = []
-        #b = dict(sorted(bazis.items(), key=lambda x: x[1]))
         b = [key for key, v in filter(lambda x: x[1] > 0,  bazis.items())]
-        for i in range(a.shape[0]):
-            res.append([])
-            res[-1].append(i+1)
-            res[-1].append(b[i])
-            res[-1].append(cb[i])
-            res[-1].extend(p[i])
-            
-        res.append([])
-        res[-1].append(len(res))
-        res[-1].extend((None, None))
-        res[-1].extend(p[-1])
-
-        return res
+        return Result(b.copy(), cb.copy(), p.copy())
     
     full_res = [get_res()]
     while iter(): 
@@ -116,10 +101,10 @@ def simplex(pa, pb, pc, signs, task = "max"):
 def zj(pCol, cb):
     return sum(map(lambda a, b: a*b, pCol, cb))
 
-def get_bazis(a, p):
+def init_bazis(a, p):
     j = 0
     bazis = {}
-    for i in range(p.shape[1]):
+    for i in range(p.shape[1] - 1):
         if i < a.shape[1]:
             bazis[f"P{i+1}"] = 0
         else:
@@ -130,7 +115,7 @@ def get_bazis(a, p):
 def key_to_id(pkey):
     return int(pkey[1:]) - 1
 
-def getP(a, b, c, cb): 
+def init_p(a, b, c, cb): 
     p = []
     for i in range(a.shape[0]):
         p.append([b[i]])
@@ -160,7 +145,16 @@ def getMaxPos(pSlice):
     return maxPos, max
 
 def getDivs(p, maxPos):
-    return list(map(lambda a, b: a/b, p[:-1, 0], p[:-1, maxPos])) 
+    p0 = p[:-1, 0]
+    pj = p[:-1, maxPos]
+    
+    def only_positive(a, b):
+        if b > 0:
+            return a/b
+        else: 
+            return np.inf
+    
+    return list(map(only_positive, p0, pj)) 
 
 # ломается потому что p0 начал входить в общую p
 def swap_bazis(bazis, pmin, pmax):
