@@ -34,7 +34,7 @@ class InputTableWidget(QtWidgets.QTableWidget):
         self.fill_b_ub()
         self.fill_c()
         
-        self.setFixedHeight(150)
+        self.setFixedHeight(250)
         
     def fromTextFile(self):
         f = open(r"lab3/table.txt")
@@ -139,6 +139,7 @@ class OutputTableWidget(QtWidgets.QTableWidget):
         self.setRowCount(len(vLabels)) 
         self.setVerticalHeaderLabels(vLabels)
         
+        iTable.A_ub = iTable.get_A_ub()
         self.outputResult(res, iTable)
                 
         self.resizeColumnsToContents()
@@ -156,7 +157,7 @@ class OutputTableWidget(QtWidgets.QTableWidget):
         jLen = iTable.columnCount() - 1
         
         for k in range(len(res)):
-            for i in range(iTable.rowCount() - 1):
+            for i in range(iLen):
                 ii, jj = res[k].colored[1]
                 diff_b = f"[{res[k].diff}]" if i == ii  else ""
                 di = 'X' if res[k].di[i] == -1 else res[k].di[i]
@@ -165,7 +166,7 @@ class OutputTableWidget(QtWidgets.QTableWidget):
                 self.setItem(i + row, jLen, QtWidgets.QTableWidgetItem(str(res[k].b[i]) + diff_b))
                 # разность по столбцам
                 self.setItem(row + i, jLen + 1, QtWidgets.QTableWidgetItem(str(di)))      
-                for j in range(iTable.columnCount() - 1):
+                for j in range(jLen):
                     diff_c = f"[{res[k].diff}]" if j == jj  else ""
                     # потребности
                     self.setItem(row + iLen, j, QtWidgets.QTableWidgetItem(str(res[k].c[j]) + diff_c))  
