@@ -165,6 +165,7 @@ def getDivs(p, maxPos):
     
     return list(map(only_positive, p0, pj)) 
 
+# ломается потому что p0 начал входить в общую p
 def swap_bazis(bazis, pmin, pmax):
     bazis[pmin], bazis[pmax] = bazis[pmax], bazis[pmin]
     return dict(sorted(bazis.items(), key=lambda x: x[1]))
