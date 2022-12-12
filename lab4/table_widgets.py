@@ -4,6 +4,10 @@ import sympy as sp
 
 class OutputTableWidget(QtWidgets.QTableWidget):    
     def fill(self, frankwolf_res):
+        if frankwolf_res == "error":
+            QtWidgets.QMessageBox.critical(self, "Ошибка симплексного метода", "Невозможно решить задачу")
+            return
+        
         self.clear()
         res = frankwolf_res.getAll() 
         

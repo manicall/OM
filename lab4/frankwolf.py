@@ -20,20 +20,19 @@ def frankwolf(ex, g, X, E):
     f = sp.lambdify(("x1", "x2"), ex)
     X = Point(*[int(i) for i in X])
     g = g.split('\n')
-    
-    # for i in range(len(g)):
-    #     g[i] = str(sp.simplify(g[i]))
 
     a = get_a(g)
     b, signs = get_b_signs(g)
     
     full_res = FullResult()
-    #full_res.appendResult(Result(X, c, Z, L, f(*X.getCoord())))
     def iter():  
         nonlocal X, full_res 
         c = grad(ex, X)  
     
         res = simplex(a, b, c, signs)
+        
+        if res == "error": return res
+        
         # x1 и x2 найденные симплекс методом
         z = res[-1].getResult().X
         Z = Point(z[0], z[1]) 
@@ -48,14 +47,12 @@ def frankwolf(ex, g, X, E):
         for i, el in enumerate((strX1, strX2)):
             replaced_ex = replaced_ex.replace(f"x{i+1}", f'({el})')
         
-        L = round(float(sp.solve(sp.diff(replaced_ex, 'L'), 'L')[-1]), 2)
-        if L > 1: 
-            L = 1
+        solved = sp.solve(sp.diff(replaced_ex, 'L'), 'L')[-1]
+        L = round(float(solved), 2)
+        if L > 1: L = 1
         
         newX = Point(X.x1 + L*(Z.x1-X.x1), X.x2 + L*(Z.x2-X.x2))
-        print("newX= ", end=" ")
-        
-        print("diff=", get_difference(f, X, newX))
+
         if get_difference(f, X, newX) < E:
             full_res.appendResult(Result(newX, c, Z, L, f(*newX.getCoord()))) 
             return False
@@ -65,14 +62,17 @@ def frankwolf(ex, g, X, E):
         return True
     
     n = 10
-    while iter():
+    while True:
+        r = iter()
+        if r == False or r == "error": break
         n -= 1
         if n < 0: break;
+    
+    if r == "error": return r
     
     return full_res
         
 def get_difference(f, X, newX):
-    #print(f(X.x1, X.x2), f(newX.x1, newX.x2))
     return abs(f(X.x1, X.x2) - f(newX.x1, newX.x2))
   
 def get_b_signs(g):
@@ -103,12 +103,6 @@ def get_a(g):
             # перед переменной стоит знак [+-] (например -x1..)      
             elif token[j - 1] == "-" or token[j - 1] == "+":
                 a[index(var)] = float("".join((token[j-1], '1')))
-            # перед переменной стоит число (например 20x1..)
-            elif token[j - 1].isdigit():
-                if j-2 >= 0: # перед числом есть знак (например -20x1..)
-                    a[index(var)] = float(token[j-2] + token[j-1])
-                else: # перед числом знака нет (например 20x1..)
-                    a[index(var)] = float(token[j-1])
             else:
                 print("ограничение задано некорректно")
                 return      
@@ -127,36 +121,6 @@ def get_a(g):
         A.append(a)
             
     return np.array(A)
-
-
-    
-    # def insertA(i, temp):
-    #     if j == 0: temp = "+"
-    #     if temp == "+": temp = "1"
-    #     elif temp == "-": temp = "-1"
-    #     elif temp == "": temp = "0"
-    #     a[-1][i] = int(temp)
-                
-    # a = []
-    # # поиск знака неравентва 
-    # for i in range(len(g)):
-    #     a.append([0, 0])
-    #     token = tokenize(g[i])
-    #     temp = ""
-    #     for j in range(len(token)):
-    #         if (token[j].isdigit() or token[j] == "+" or token[j] == "-") :
-    #             temp += token[j]
-    #         elif token[j] == "x1":
-    #             insertA(0, temp)
-    #             temp = ""
-    #         elif token[j] == "x2":
-    #             insertA(1, temp)
-    #             temp = ""
-                
-    #         if token[j]:
-    #             break
-            
-    # return np.array(a)
 
 def grad(f, p):
     dx1 = sp.lambdify(("x1", "x2"), sp.diff(f, "x1"))
