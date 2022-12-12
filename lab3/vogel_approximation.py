@@ -8,6 +8,8 @@ def vogel_approximation(pa, pb, pc):
     
     allowed_rows = [*range(a.shape[0])]
     allowed_cols = [*range(a.shape[1])]
+    sended = np.zeros(a.shape)
+    res = []
     
     if sum(b) == sum(c): 
         print("Задача является закрытой")
@@ -15,12 +17,14 @@ def vogel_approximation(pa, pb, pc):
         print("Задача является открытой")
         return
     
-    sended = np.zeros(a.shape)
     
     def iter():
         nonlocal a
-        di = [el2-el1 for el1, el2 in mins_row(a, allowed_rows, allowed_cols)]
-        dj = [el2-el1 for el1, el2 in mins_col(a, allowed_rows, allowed_cols)]
+        _min_rows  = min_rows(a, allowed_rows, allowed_cols)
+        _min_cols  = min_cols(a, allowed_rows, allowed_cols)
+        
+        di = [el2-el1 for el1, el2 in _min_rows]
+        dj = [el2-el1 for el1, el2 in _min_cols]
         
         max_di = (max(di), np.argmax(di))
         max_dj = (max(dj), np.argmax(dj))
@@ -31,6 +35,18 @@ def vogel_approximation(pa, pb, pc):
         def IndexOfPositive(_list):
             for i, el in enumerate(_list):
                 if el > 0: return i
+                
+        def min_allowed_col():
+            j = None
+            for col in allowed_cols:
+                if j is None or a[i][j] > a[i][col]: j = col
+            return j
+        
+        def min_allowed_row():
+            i = None
+            for row in allowed_rows:
+                if i is None or a[i][j] > a[row][j]: i = row
+            return i
             
         if (max_di[0] < 0 and max_dj[0] < 0):
             # индекс строки максимума
@@ -47,11 +63,8 @@ def vogel_approximation(pa, pb, pc):
                 # индекс строки максимума
                 i = max_di[1]
                 # индекс минимума в максимальной строке
-                j = None
-                for col in allowed_cols:
-                    if j is None or a[i][j] > a[i][col]: 
-                        j = col
-                    
+
+                j = min_allowed_col()    
                 if j is None:
                     # удаление строки максимума
                     allowed_rows.remove(i)
@@ -65,12 +78,10 @@ def vogel_approximation(pa, pb, pc):
                 # индекс столбца максимума
                 j = max_dj[1]
                 # индекс минимума в максимальном столбце
-                i = None
-                for row in allowed_rows:
-                    if i is None or a[i][j] > a[row][j]: i = row
+                i = min_allowed_row()
                     
-                if i is  None: 
-                    # удаление столбца максимума
+                if i is None: 
+                    # удаление стволбца максимума
                     allowed_cols.remove(j)
                     return
                 
@@ -78,17 +89,16 @@ def vogel_approximation(pa, pb, pc):
                 allowed_cols.remove(j)
                 colored = ('dj', (i, j))
                 
-
         res.append(Result(b.copy(), di.copy(), c.copy(), dj.copy(), sended.copy(), diff, colored))
 
-    res = []
+
     n = 1000
     while any(i > 0 for i in b) and n > 0:
         iter()
         
     print(*res, sep='\n')
-    return res
-            
+    return res 
+           
 def send(sended, c, b, i, j):
     _min = min(c[j], b[i])
     sended[i][j] = _min
@@ -137,10 +147,10 @@ def mins(a, allowed_rows, allowed_cols, axis):
                 
     return result
 
-def mins_row(a, allowed_rows, allowed_cols):
+def min_rows(a, allowed_rows, allowed_cols):
     return mins(a, allowed_rows, allowed_cols, 0)
 
-def mins_col(a, allowed_rows, allowed_cols):
+def min_cols(a, allowed_rows, allowed_cols):
     return mins(a, allowed_rows, allowed_cols, 1)
     
 if __name__ == '__main__':

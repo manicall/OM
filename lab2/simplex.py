@@ -5,18 +5,18 @@ from simplex_result import Result
 
 def simplex(pa, pb, pc, signs = None, task = "max"):
     if signs is not None:
-        if (all(i == Signs.equal for i in signs)):
-            print("данную задачу невозможно решить симплексным методом")
+        if (all(Signs.isEqual(i) for i in signs)):
+            print("в результате проверки знаков неравенств оказалось, что задачу решить невозможно(симплексный метод)")
             return
     
         for i, el in enumerate(signs):
-            if el == Signs.more:
+            if Signs.isMore(el):
                 pb[i] = -pb[i]
                 for j in range(pa.shape[1]):
                     pa[i][j] = -pa[i][j]             
       
     if (any(i < 0 for i in pb)):
-        print("данную задачу невозможно решить симплексным методом")
+        print("один из членов B отрицательный(симплексный метод)")
         return 
     
     if task == 'min':

@@ -17,7 +17,7 @@ class CentralWidget(QtWidgets.QWidget):
 class InputUI():
     def __init__(self):
         expression = "2*x1 + 4*x2 - x1**2 - 2*x2**2"
-        bounds = "x1 + 2*x2 >= 8\n2*x1 - x2 <= 12"
+        bounds = "x1 + 2*x2 <= 8\n2*x1 - x2 <= 12"
         startPoint = [0, 0]
         accuracy = 0.01
         
@@ -52,4 +52,8 @@ class InputUI():
     def getUIContains(self):
         return self.expressionLine.text(), self.boundsText.toPlainText(), \
             [pointEdit.text() for pointEdit in self.startPoint], self.accuracy.text()
-        
+    
+    def fromTextFile(self):
+        f = open(r"lab4/input.txt")
+        self.expressionLine.setText(f.readline())
+        self.boundsText.setPlainText(f.read())
