@@ -5,19 +5,19 @@ from simplex_result import Result
 
 def simplex(pa, pb, pc, signs = None, task = "max"):
     if signs is not None:
-        if (all(i == Signs.equal for i in signs)):
-            print("данную задачу невозможно решить симплексным методом")
-            return
+        if (all(Signs.isEqual(i) for i in signs)):
+            print("в результате проверки знаков неравенств оказалось, что задачу решить невозможно(симплексный метод)")
+            return "error"
     
         for i, el in enumerate(signs):
-            if el == Signs.more:
+            if Signs.isMore(el):
                 pb[i] = -pb[i]
                 for j in range(pa.shape[1]):
                     pa[i][j] = -pa[i][j]             
       
     if (any(i < 0 for i in pb)):
-        print("данную задачу невозможно решить симплексным методом")
-        return 
+        print("один из членов B отрицательный(симплексный метод)")
+        return "error"
     
     if task == 'min':
         pc = list(map(lambda x: -x, pc))
@@ -34,6 +34,19 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
     bazis = init_bazis(a, p)
 
     def iter():
+        def has_up_border(pColumn):
+            for i in pColumn:
+                if i > 0: return True
+            return False
+     
+        def check_up_border():
+            for i in range(len(p)):
+                if not has_up_border(p[:, i]):
+                    print("Функция не ограничена сверху")
+                    return False
+            return True
+        
+        if not check_up_border(): return "error"
         nonlocal bazis
         # получение позиции максимального по модулю (выбор только среди отризательных)
         k, _ = getMaxPos(p[-1])
@@ -60,15 +73,7 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
         # обмен в векторе базиса
         bazis = swap_bazis(bazis, pmin, pmax)
        
-        def has_up_border(pColumn):
-            for i in pColumn:
-                if i > 0: return True
-            return False
-     
-        for i in range(len(p)):
-            if not has_up_border(p[:, i]):
-                print("Функция не ограничена сверху")
-                return False
+        if not check_up_border(): return "error"
         
         # если решение содержит множество точек максимума, 
         # необходимо использовать значение списка F для выхода из цикла
@@ -90,11 +95,15 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
         return Result(b.copy(), cb.copy(), p.copy())
     
     full_res = [get_res()]
-    while iter(): 
+    while True:
+        r = iter()
+        if r == False or r == 'error': break
         full_res.append(get_res())
         if (n := n - 1) == 0: break
-    else:
-        full_res.append(get_res())
+
+    if r == 'error': return r
+
+    full_res.append(get_res())
     
     return full_res
 

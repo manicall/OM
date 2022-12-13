@@ -26,6 +26,8 @@ class MainWindow(QtWidgets.QMainWindow):
         menu_bar = self.menuBar()
         menu_bar.addAction("Метод Франка-Вульфа", self.solve_my)
         
+        menu_bar.addAction("Входные данные из файла", self.widget.inputUI.fromTextFile)
+        
     def solve_my(self):
         inputUI = self.widget.inputUI
         ex, g, X, E = inputUI.getUIContains()
