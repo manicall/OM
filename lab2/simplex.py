@@ -175,11 +175,13 @@ def get_pmin(bazis, minPos):
         if minPos + 1 == value: return key 
 
 if __name__ == '__main__': 
-    a = np.array([[18, 15, 12],
-                  [6, 4, 8], 
-                  [5, 3, 3]])       
+    a = np.array([[2, 3],
+                  [1, 4]])       
     
-    b = np.array([360, 192, 180])
-    c = [9, 10, 16]
+    b = np.array([10, 5])
+    c = [-4, 0]
 
-    simplex(a, b, c)
+    res = simplex(a, b, c)
+    
+    fx = res[-1].getResult()
+    print(fx.F, fx.X)

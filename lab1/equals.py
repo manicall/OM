@@ -30,7 +30,7 @@ class Equals:
         MyEnum.gr_ex  : 'x1**3 + 2*x2**2 - 3*x1 - 4*x2',
         MyEnum.fd_ex  : '3*x1**2+x2**2-x1*x2-4*x1',
         MyEnum.web_ex : '2*x1**2 + x2**2 - x1*x2',
-        MyEnum.rosen  : '100 * (x2 - x1**2)**2 + (1 - x1)**2'
+        MyEnum.rosen  : '(x1-2)**2 - x2**2'
     }
 
     @staticmethod
