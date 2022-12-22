@@ -22,23 +22,20 @@ class Kruskal:
         result = []
         i, e = 0, 0
         
-        g = dict(zip(range(len(self.graph)), self.graph))
-        g = sorted(g.items(), key=lambda item: item[1][2])  
+        self.graph = sorted(self.graph, key=lambda item: item[2]) 
         
-        parent = []
-        rank = []
-        for node in range(self.V):
-            parent.append(node)
-            rank.append(0)
+        parent = list(range(self.V))
+        rank = [0] * self.V
+
         while e < self.V - 1:
-            u, v, w = g[i][1]
+            u, v, w = self.graph[i]
             x = self.__search(parent, u)
             y = self.__search(parent, v)
             
             if x != y:
-                e = e + 1
+                e += 1
                 result.append((u, v, w))
                 self.__apply_union(parent, rank, x, y)
             
-            i = i + 1       
+            i += 1       
         return result

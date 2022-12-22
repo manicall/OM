@@ -34,19 +34,6 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
     bazis = init_bazis(a, p)
 
     def iter():
-        def has_up_border(pColumn):
-            for i in pColumn:
-                if i > 0: return True
-            return False
-     
-        def check_up_border():
-            for i in range(len(p)):
-                if not has_up_border(p[:, i]):
-                    print("Функция не ограничена сверху")
-                    return False
-            return True
-        
-        if not check_up_border(): return "error"
         nonlocal bazis
         # получение позиции максимального по модулю (выбор только среди отризательных)
         k, _ = getMaxPos(p[-1])
@@ -73,7 +60,7 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
         # обмен в векторе базиса
         bazis = swap_bazis(bazis, pmin, pmax)
        
-        if not check_up_border(): return "error"
+        if not check_up_border(p): return "error"
         
         # если решение содержит множество точек максимума, 
         # необходимо использовать значение списка F для выхода из цикла
@@ -95,6 +82,9 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
         return Result(b.copy(), cb.copy(), p.copy())
     
     full_res = [get_res()]
+    if not check_up_border(p): return "error"
+    if not list(filter(lambda x: x < 0, p[-1, :])): return full_res
+    
     while True:
         r = iter()
         if r == False or r == 'error': break
@@ -106,6 +96,19 @@ def simplex(pa, pb, pc, signs = None, task = "max"):
     full_res.append(get_res())
     
     return full_res
+
+def has_up_border(pColumn):
+    for i in pColumn:
+        if i > 0: return True
+    return False
+
+def check_up_border(p):
+    for i in range(len(p)):
+        if not has_up_border(p[:, i]):
+            print("Функция не ограничена сверху")
+            return False
+    return True
+        
 
 def zj(pCol, cb):
     return sum(map(lambda a, b: a*b, pCol, cb))

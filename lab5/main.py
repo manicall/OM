@@ -8,13 +8,13 @@ G = nx.Graph()
 
 E = None
 if E is None:
-    n = 7
+    n = 6
     p = 0.5
-    E = ER(n, p)
+    E = ER(n, 0.4)
 
 G.add_weighted_edges_from(E)
 for e1, e2 in G.edges(): G[e1][e2]['color'] = 'black'
-pos=nx.circular_layout(G)
+pos=nx.spring_layout(G)
 
 g = Kruskal(E)
 res = g.kruskal()
@@ -29,6 +29,6 @@ for r1, r2, w in res:
             nx.draw(G, pos, edge_color=colors, with_labels=True, font_weight='bold',)
             edge_weight = nx.get_edge_attributes(G, 'weight')
             nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_weight)
-
+            
             plt.show()
             break

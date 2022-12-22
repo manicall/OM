@@ -8,13 +8,13 @@ def ER(n, p):
     E = set()
     for combination in combinations(V, 2):
         a = random()
-        if a < p:
+        
+        if a < p or combination[0] == 0:
             a, b = combination
             if a > b: a, b = b, a 
             E.add((a, b, randint(5,20)))
-
+            
     return list(E)
-
 
 if __name__ == "__main__":
     n = 10
